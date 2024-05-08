@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee</title>
+</head>
+<body layout:fragment="content">
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Employees
+                    </div>
+
+                    <div class="card-body px-3 py-4">
+                        <table id="table"
+                               class="table table-bordered table-hover table-responsive-md text-center w-100">
+                            <thead class="table-light align-middle">
+                            <th class="text-center">Full Name</th>
+                            <th class="text-center">Code</th>
+                            <th class="text-center">Gender</th>
+                            <th class="text-center">Birth Date</th>
+                            <th class="text-center">Address</th>
+                            <th class="text-center">Created At</th>
+                            <th class="text-center">Account</th>
+                            <th class="text-center">Role</th>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="employee : ${employees}">
+                                <td th:text="${employee.getFullName()}"></td>
+                                <td th:text="${employee.getCode()}"></td>
+                                <td th:switch="${employee.getGender()}">
+                                    <i class="fa-solid fa-mars" style="color: #4169E1; font-size: 15px" th:case="M"></i>
+                                    <i class="fa-solid fa-venus" style="color: #FF3659; font-size: 15px"
+                                       th:case="F"></i>
+                                </td>
+                                <td th:text="${#dates.format(employee.getBirthDate(), 'MMM dd, yyyy')}"></td>
+                                <td th:text="${employee.getAddress()}"></td>
+                                <td th:text="${#dates.format(employee.getAddDate(), 'MMM dd, yyyy')}"></td>
+                                <td></td>
+                                <td><span class="badge rounded-pill text-bg-success">Admin</span></td>
+                            </tr>
+                            </tbody>
+
+                            <tfoot class="table-light align-middle">
+                            <th class="text-center">Full Name</th>
+                            <th class="text-center">Code</th>
+                            <th class="text-center">Gender</th>
+                            <th class="text-center">Birth Date</th>
+                            <th class="text-center">Address</th>
+                            <th class="text-center">Created At</th>
+                            <th class="text-center">Account</th>
+                            <th class="text-center">Role</th>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Employees
+                    </div>
+
+                    <div class="card-body px-3 py-4">
+                        <form th:action="@{/employee/save}" th:object="${employee}" method="post">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label class="w-100">
+                                        Full name :
+                                        <input class="form-control" th:field="*{fullName}" type="text"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        CIN number :
+                                        <input class="form-control" th:field="*{numberCN}" type="text"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Address :
+                                        <input class="form-control" th:field="*{address}" type="text">
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Birth date :
+                                        <input class="form-control" th:field="*{birthDate}" type="date"
+                                               th:value="2007-01-01">
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Gender :
+                                        <select class="form-select" th:field="*{gender}">
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                        </select>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Email :
+                                        <input class="form-control" th:field="*{username}" type="text">
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Password :
+                                        <input class="form-control" type="password" th:field="*{password}"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Conform Password :
+                                        <input class="form-control" type="password" name="confirmPassword"/>
+                                    </label>
+                                </div>
+
+                                <div class="col-lg-12 mt-4 text-center">
+                                    <button class="btn btn-outline-primary px-4" type="submit">
+                                        <i class="fa-solid fa-floppy-disk me-2"></i>Save employee
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

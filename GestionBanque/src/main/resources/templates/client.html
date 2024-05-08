@@ -1,0 +1,294 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/template}">
+
+<head>
+    <title>Clients</title>
+</head>
+
+<body layout:fragment="content">
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Clients
+                    </div>
+
+                    <div class="card-body px-3 py-4">
+                        <table id="table"
+                               class="table table-bordered table-hover table-responsive-md text-center w-100">
+                            <thead class="table-light align-middle">
+                            <tr>
+                                <th class="text-center" rowspan="2">Name</th>
+                                <th class="text-center" rowspan="2">CIN</th>
+                                <th class="text-center" rowspan="2">Birth Date</th>
+                                <th class="text-center" rowspan="2">Gender</th>
+                                <th class="text-center" rowspan="2">Address</th>
+                                <th class="text-center" colspan="3">Account</th>
+                                <th class="text-center" rowspan="2" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">Actions</th>
+                            </tr>
+
+                            <tr>
+                                <th class="text-center">Courant</th>
+                                <th class="text-center">Epargne</th>
+                                <th class="text-center">Information</th>
+
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="client, row : ${clients}"
+                                th:with="accountCount = ${client.getAccounts().size()}">
+                                <td th:text="${client.getFullName()}"></td>
+                                <td th:text="${client.getNumberCN()}"></td>
+                                <td th:text="${#dates.format(client.getBirthDate(), 'MMM dd, yyyy')}"></td>
+                                <td th:switch="${client.getGender()}">
+                                    <i class="fa-solid fa-mars" style="color: #4169E1; font-size: 15px" th:case="M"></i>
+                                    <i class="fa-solid fa-venus" style="color: #FF3659; font-size: 15px"
+                                       th:case="F"></i>
+                                </td>
+                                <td th:text="${client.getAddress()}"></td>
+                                <td>
+                                    <a th:href="@{/accounts/{id}/courant(id = ${client.getId()})}"
+                                       style="font-size: 10px" class="btn btn-sm btn-outline-dark"
+                                       th:if="${accountCount == 0}">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </a>
+
+                                    <a style="font-size: 10px" class="btn btn-sm btn-outline-success disabled"
+                                       th:if="${accountCount == 1 || accountCount == 2}">
+                                        <i class="fa-solid fa-check"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/accounts/{id}/epargne(id = ${client.getId()})}"
+                                       style="font-size: 10px" class="btn btn-sm btn-outline-dark"
+                                       th:if="${accountCount == 1}">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </a>
+
+                                    <a href="#" style="font-size: 10px" class="btn btn-sm btn-outline-dark disabled"
+                                       th:if="${accountCount == 0}">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </a>
+
+                                    <a style="font-size: 10px" class="btn btn-sm btn-outline-success disabled"
+                                       th:if="${accountCount == 2}">
+                                        <i class="fa-solid fa-check"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a id="btn-more-info" class="btn btn-outline-info btn-sm" style="font-size: 10px"
+                                       data-bs-toggle="collapse" th:href="'#collapse-' + ${row.count}"
+                                       role="button" aria-expanded="false"
+                                       th:aria-controls="'collapse-' + ${row.count}">
+                                        <i class="fa-solid fa-angle-down me-1"></i> More...
+                                    </a>
+
+                                    <div class="collapse position-absolute w-50 shadow-lg mt-2"
+                                         style="left: 48%; z-index: 1000"
+                                         th:id="'collapse-' + ${row.count}">
+                                        <div class="card card-body">
+                                            <table class="table table-bordered text-center m-0">
+
+                                                <tr class="bg-light">
+                                                    <th class="text-center" colspan="5">
+                                                        Accounts For :
+                                                        <span class="text-success"
+                                                              th:text="${client.getFullName()}"></span>
+                                                    </th>
+                                                </tr>
+
+                                                <tr class="bg-light">
+                                                    <th class="text-center">Number</th>
+                                                    <th class="text-center">Balance</th>
+                                                    <th class="text-center">Type</th>
+                                                    <th class="text-center">Created At</th>
+                                                    <th class="text-center" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">Actions</th>
+                                                </tr>
+
+                                                <tr th:if="${accountCount > 0}"
+                                                    th:each="account : ${client.getAccounts()}">
+                                                    <td th:text="${account.getAccountNumber()}"></td>
+                                                    <td th:text="${account.getBalance()}"></td>
+                                                    <td th:switch="${account.class.simpleName}"
+                                                        class="text-dark fw-bold">
+                                                        <span th:case="Courant" class="fw-bold text-info">
+                                                            <i class="fa-solid fa-money-check-dollar me-1"></i>
+                                                            Courant
+                                                        </span>
+
+                                                        <span th:case="Epargne" class="fw-bold text-dark">
+                                                            <i class="fa-solid fa-wallet me-1"></i>
+                                                            Epargne
+                                                        </span>
+                                                    </td>
+                                                    <td th:text="${#dates.format(account.getAddDate(), 'MMM dd, yyyy')}"></td>
+                                                    <td th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                                        <!-- Button trigger modal -->
+                                                        <a style="font-size: 10px"
+                                                           class="btn btn-sm btn-outline-danger me-2"
+                                                           data-bs-toggle="modal"
+                                                           th:data-bs-target="${'#deleteModal-' + row.count}">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+
+                                                <tr th:if="${accountCount == 0}">
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"></td>
+                                                </tr>
+
+                                                <tr class="bg-light">
+                                                    <th class="text-center">Number</th>
+                                                    <th class="text-center">Balance</th>
+                                                    <th class="text-center">Type</th>
+                                                    <th class="text-center">Created At</th>
+                                                    <th class="text-center" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">Actions</th>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                    <!-- Button trigger modal -->
+                                    <a style="font-size: 10px" class="btn btn-sm btn-outline-danger me-2"
+                                       data-bs-toggle="modal" th:data-bs-target="${'#deleteModal-' + row.count}">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" data-bs-backdrop="static"
+                                         th:id="${'deleteModal-' + row.count}" tabindex="-1"
+                                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="modal-title text-danger fs-5" id="exampleModalLabel">
+                                                        Warning message</h3>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="fs-6">
+                                                        Do your sur, are relay want the delete client :
+                                                        <strong class="text-info"
+                                                                th:text="${client.getFullName() + ', ' + client.getNumberCN()}">
+                                                        </strong>
+                                                    </p>
+
+                                                    <div th:if="${accountCount > 0}" class="card px-3 py-2"
+                                                         style="background-color: #f8d7da">
+                                                        <p class="fs-6">
+                                                            You can't delete the client :
+                                                            <strong class="text-danger"
+                                                                    th:text="${client.getFullName() + ', ' + client.getNumberCN()}"></strong>
+                                                            <br/>
+                                                            He / She has accounts for us.
+                                                        </p>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            data-bs-dismiss="modal">Close
+                                                    </button>
+                                                    <a th:href="@{/clients/{id}/delete(id = ${client.getId()})}"
+                                                       type="button"
+                                                       th:class="'btn btn-danger btn-sm ' + ${accountCount == 0 ? '' : 'disabled'}">
+                                                        <i class="fa-solid fa-trash-can me-2"></i>Force delete
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+
+                            <tfoot class="table-light align-middle">
+                            <tr>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">CIN</th>
+                                <th class="text-center">Birth Date</th>
+                                <th class="text-center">Gender</th>
+                                <th class="text-center">Address</th>
+                                <th class="text-center">Information</th>
+                                <th class="text-center">Courant</th>
+                                <th class="text-center">Epargne</th>
+                                <th class="text-center" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">Actions</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Add new
+                    </div>
+
+                    <div class="card-body px-3 py-4">
+                        <form th:action="@{/clients/save}" th:object="${client}" method="post">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label class="w-100">
+                                        Full name :
+                                        <input class="form-control" th:field="*{fullName}" type="text"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        CIN number :
+                                        <input class="form-control" th:field="*{numberCN}" type="text"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Address :
+                                        <input class="form-control" th:field="*{address}" type="text"/>
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Birth date :
+                                        <input class="form-control" th:field="*{birthDate}" type="date">
+                                    </label>
+
+                                    <label class="w-100 mt-3">
+                                        Gender :
+                                        <select class="form-select" th:field="*{gender}">
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div class="col-lg-12 mt-4 text-center">
+                                    <button class="btn btn-outline-primary px-4" type="submit">
+                                        <i class="fa-solid fa-floppy-disk me-2"></i>Save client
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${success}">
+        <h4 class="alert-heading">Well done!</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <p>The client : <strong th:text="${clientSuccess.getFullName()}"></strong>, <strong
+                th:text="${clientSuccess.getNumberCN()}"></strong> Created At : <strong
+                th:text="${clientSuccess.getAddDate()}"></strong> with success !</p>
+    </div>
+</section>
+</body>
+</html>

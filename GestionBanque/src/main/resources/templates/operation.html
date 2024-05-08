@@ -1,0 +1,276 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/template}">
+
+<head>
+    <title>Operations</title>
+</head>
+
+<body layout:fragment="content">
+<section>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Operations
+                    </div>
+
+                    <div class="card-body px-3 py-4">
+                        <table id="table" class="table table-bordered table-hover text-center">
+                            <thead class="bg-light">
+                            <tr>
+                                <th class="text-center" rowspan="2">Client</th>
+                                <th class="text-center" colspan="2">Account</th>
+                                <th class="text-center" rowspan="2">Code</th>
+                                <th class="text-center" rowspan="2">Rising</th>
+                                <th class="text-center" rowspan="2">Confirm At</th>
+                                <th class="text-center" rowspan="2">Type</th>
+                                <th class="text-center" rowspan="2">Employees</th>
+                            </tr>
+
+                            <tr>
+                                <th class="text-center">Number</th>
+                                <th class="text-center">Type</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="operation : ${operations}">
+                                <td th:text="${operation.getAccount().getClient().getFullName()}"></td>
+                                <td th:text="${operation.getAccount().getAccountNumber()}"></td>
+                                <td th:switch="${operation.getAccount().class.simpleName}">
+                                    <span th:case="Courant" class="fw-bold text-info">
+                                        <i class="fa-solid fa-money-check-dollar me-1"></i>
+                                        Courant
+                                    </span>
+
+                                    <span th:case="Epargne" class="fw-bold text-dark">
+                                        <i class="fa-solid fa-wallet me-1"></i>
+                                        Epargne
+                                    </span>
+                                </td>
+                                <td th:text="${operation.getCode()}"></td>
+                                <td th:text="${operation.getRising()}"></td>
+                                <td th:text="${#dates.format(operation.getConfermDate(), 'MMM dd, yyyy')}"></td>
+                                <td th:switch="${operation.class.simpleName}">
+                                    <span th:case="Retrait" class="fw-bold text-danger">
+                                        <i class="fa-solid fa-arrow-right-arrow-left me-1"></i>
+                                        Retrait
+                                    </span>
+
+                                    <span th:case="Payment" class="fw-bold text-success">
+                                        <i class="fa-solid fa-arrow-right-arrow-left me-1"></i>
+                                        Payment
+                                    </span>
+                                </td>
+                                <td th:text="${operation.getEmployee().getCode()}"></td>
+                            </tr>
+                            </tbody>
+
+                            <tfoot class="bg-light">
+                            <tr>
+                                <th class="text-center">Client</th>
+                                <th class="text-center">Number</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Code</th>
+                                <th class="text-center">Rising</th>
+                                <th class="text-center">Confirm At</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Employees</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card rounded-1 shadow">
+                    <div class="card-header text-bg-secondary">
+                        Add new
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item rounded-0">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseOne" aria-expanded="true"
+                                            aria-controls="collapseOne">
+                                        Retrait
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse show"
+                                     data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <form th:action="@{/accounts/retrait/transaction}" method="POST">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <label>
+                                                        Witch account you applied the transaction with :
+                                                        <div class="form-check mt-2 p-0">
+                                                            <input type="radio" class="btn-check" value="courant"
+                                                                   name="witchAccount"
+                                                                   id="btn-check-outlined-courant" autocomplete="off"
+                                                                   checked>
+                                                            <label class="btn btn-outline-info btn-sm me-2"
+                                                                   for="btn-check-outlined-courant">Courant</label>
+
+                                                            <input type="radio" class="btn-check" value="epargne"
+                                                                   name="witchAccount"
+                                                                   id="btn-check-outlined-epargne" autocomplete="off">
+                                                            <label class="btn btn-outline-dark btn-sm"
+                                                                   for="btn-check-outlined-epargne">Epargne</label>
+                                                        </div>
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Account number :
+                                                        <input class="form-control" list="datalistOptions"
+                                                               name="accountNumber" type="text"/>
+                                                        <datalist id="datalistOptions">
+                                                            <option th:each="account : ${accounts}"
+                                                                    th:value="${account.getAccountNumber()}">
+                                                        </datalist>
+                                                    </label>
+                                                    <small class="alert alert-danger" th:if="${Exception}">
+                                                        <span th:text="${Exception}"></span>
+                                                    </small>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Rising :
+                                                        <input class="form-control" name="rising" type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary m-auto w-auto mt-4 px-4">
+                                                    <i class="fa-solid fa-money-bill-transfer me-2"></i>
+                                                    Submit Retrait
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseTwo" aria-expanded="false"
+                                            aria-controls="collapseTwo">
+                                        Payment
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <form th:action="@{/accounts/payment/transaction}" method="POST">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <label>
+                                                        Witch account you applied the transaction with :
+                                                        <div class="form-check mt-2 p-0">
+                                                            <input type="radio" class="btn-check" value="courant"
+                                                                   name="witchAccount"
+                                                                   id="btn-check-outlined-courant-1" autocomplete="off"
+                                                                   checked>
+                                                            <label class="btn btn-outline-info btn-sm me-2"
+                                                                   for="btn-check-outlined-courant-1">Courant</label>
+
+                                                            <input type="radio" class="btn-check" value="epargne"
+                                                                   name="witchAccount"
+                                                                   id="btn-check-outlined-epargne-2" autocomplete="off">
+                                                            <label class="btn btn-outline-dark btn-sm"
+                                                                   for="btn-check-outlined-epargne-2">Epargne</label>
+                                                        </div>
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Account number :
+                                                        <input class="form-control" list="datalistOptions"
+                                                               name="accountNumber" type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Rising :
+                                                        <input class="form-control" name="rising" type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary w-auto m-auto mt-4 px-4">
+                                                    <i class="fa-solid fa-money-bill-transfer me-2"></i>
+                                                    Submit Payment
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item rounded-0">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseThree" aria-expanded="false"
+                                            aria-controls="collapseThree">
+                                        Versement
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <form th:action="@{/accounts/versement/transaction}" method="POST">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <label class="w-100">
+                                                        Account issuer :
+                                                        <input class="form-control" list="datalistOptions"
+                                                               name="accountNumberIssuer"
+                                                               type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Account receiver :
+                                                        <input class="form-control" list="datalistOptions"
+                                                               name="accountNumberReceiver"
+                                                               type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <div class="col-lg-12 mt-3">
+                                                    <label class="w-100">
+                                                        Rising :
+                                                        <input class="form-control" name="rising" type="text"/>
+                                                    </label>
+                                                </div>
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-primary w-auto m-auto mt-4 px-4">
+                                                    <i class="fa-solid fa-money-bill-transfer me-2"></i>
+                                                    Submit Versement
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
